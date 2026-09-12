@@ -1,0 +1,10 @@
+# Architecture decisions
+
+1. **Independent open core.** New generic source and clean Git history form the public project. Product-specific data mapping, security infrastructure and commercial algorithms remain in their owner's private repository. This permits other POS/ERP integrations without proprietary dependencies.
+2. **Embedded modular integration.** Contracts and core are libraries. A proprietary application can reference packages or local projects. An API host is optional; no new mandatory service is inserted into checkout.
+3. **Explicit provider routing.** `IAIProvider` accepts provider-neutral messages, configuration and cancellation. `IAIProviderRouter` selects only the approved configured provider. Models are administrator supplied. There is no silent vendor fallback.
+4. **Business concepts rather than SQL.** `IBusinessDataProvider` exposes a finite metric catalog and typed scoped results. Adapters reuse trusted host calculations. The model never supplies SQL or security identity.
+5. **Application fences.** The host authenticates, core validates policy, and the adapter verifies host/storage scope again. Result scope is checked before external disclosure. Prompt text is not an authorization mechanism.
+6. **Strict structured queries.** v0.1 uses a deterministic bounded natural-language planner plus strict JSON queries. Unknown tools, fields, duplicates and invalid ranges fail closed. Model-generated query planning is reserved for a future validated extension.
+7. **Secret indirection and minimal disclosure.** Configurations contain vault references. Provider transport retrieves secrets only at request time. The included demo environment store resolves only explicitly registered names. Narrative receives bounded anonymous aggregates, never credentials or the original prompt.
+8. **Deterministic facts survive enrichment failure.** Facts are independently rendered with source, scope and period. Commentary cannot replace the result. Forecasting and regulated credit decisions are outside v0.1.

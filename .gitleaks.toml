@@ -1,0 +1,6 @@
+[extend]
+useDefault = true
+
+[[allowlists]]
+description = "Generated build output and local Git metadata are not source inputs to directory scans"
+paths = ['''(^|/|\\)(bin|obj|\.git|TestResults|artifacts)(/|\\)''']

@@ -1,0 +1,45 @@
+name: Build, test and release checks
+on:
+  push:
+  pull_request:
+permissions:
+  contents: read
+jobs:
+  build:
+    strategy:
+      matrix:
+        os: [ubuntu-latest, windows-latest]
+    runs-on: ${{ matrix.os }}
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-dotnet@67a3573c9a986a3f9c594539f4ab511d57bb3ce9 # v4
+        with:
+          dotnet-version: 8.0.x
+      - run: dotnet restore NawiriAI.sln
+      - run: dotnet build NawiriAI.sln -c Release --no-restore
+      - run: dotnet test NawiriAI.sln -c Release --no-build
+      - run: dotnet run --project samples/NawiriAI.SampleBusiness -c Release --no-build -- --date 2026-09-12 "What were my sales this month?"
+      - name: Dependency vulnerability gate
+        shell: pwsh
+        run: |
+          dotnet list NawiriAI.sln package --vulnerable --include-transitive --format json > dependencies.json
+          if ($LASTEXITCODE -ne 0) { throw 'Dependency audit failed' }
+          $report = Get-Content dependencies.json -Raw | ConvertFrom-Json
+          $vulnerable = @($report.projects.frameworks.topLevelPackages + $report.projects.frameworks.transitivePackages | Where-Object { $_.vulnerabilities.Count -gt 0 })
+          if ($vulnerable.Count -gt 0) { throw 'Vulnerable dependencies found' }
+  secret-history:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+        with:
+          fetch-depth: 0
+      - name: Install checksum-verified scanner
+        run: |
+          curl -fsSLo /tmp/gitleaks.tar.gz https://github.com/gitleaks/gitleaks/releases/download/v8.30.1/gitleaks_8.30.1_linux_x64.tar.gz
+          echo '551f6fc83ea457d62a0d98237cbad105af8d557003051f41f3e7ca7b3f2470eb  /tmp/gitleaks.tar.gz' | sha256sum --check
+          mkdir -p /tmp/nawiriai-gitleaks
+          tar -xzf /tmp/gitleaks.tar.gz -C /tmp/nawiriai-gitleaks gitleaks
+      - run: /tmp/nawiriai-gitleaks/gitleaks git --redact --no-banner .
+      - run: /tmp/nawiriai-gitleaks/gitleaks dir --redact --no-banner .
