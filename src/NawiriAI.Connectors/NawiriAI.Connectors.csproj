@@ -1,0 +1,7 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <ItemGroup>
+    <ProjectReference Include="../NawiriAI.Abstractions/NawiriAI.Abstractions.csproj" />
+    <ProjectReference Include="../NawiriAI.Core/NawiriAI.Core.csproj" />
+    <ProjectReference Include="../NawiriAI.Analytics/NawiriAI.Analytics.csproj" />
+  </ItemGroup>
+</Project>

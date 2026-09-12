@@ -1,0 +1,25 @@
+{
+  "description": "Fictional aggregate checkpoints for the in-memory synthetic generator; no production data",
+  "today": "2026-09-12",
+  "seed": 1729,
+  "tenant": "demo-company",
+  "branch": "demo-main",
+  "currency": "KES",
+  "salesToday": 3790,
+  "transactionsToday": 3,
+  "unitsToday": 30,
+  "salesThisMonthThroughToday": 30560,
+  "salesLastFullMonth": 74870,
+  "salesChange": -44310,
+  "topFiveProductsThisMonth": [
+    { "label": "Demo Rice", "revenue": 12000, "units": 30 },
+    { "label": "Demo Coffee", "revenue": 7500, "units": 30 },
+    { "label": "Demo Soap", "revenue": 3240, "units": 18 },
+    { "label": "Demo Bread", "revenue": 2960, "units": 37 },
+    { "label": "Demo Tissue", "revenue": 2700, "units": 30 }
+  ],
+  "currentInventoryUnits": 88,
+  "currentInventoryAtUnitCost": 9650,
+  "itemsAtOrBelowReorderLevel": 3,
+  "currentReceivables": 4200
+}

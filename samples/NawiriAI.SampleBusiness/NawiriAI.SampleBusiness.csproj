@@ -1,0 +1,9 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup><OutputType>Exe</OutputType></PropertyGroup>
+  <ItemGroup>
+    <ProjectReference Include="../../src/NawiriAI.Connectors/NawiriAI.Connectors.csproj" />
+    <ProjectReference Include="../../src/NawiriAI.Providers.Gemini/NawiriAI.Providers.Gemini.csproj" />
+    <ProjectReference Include="../../src/NawiriAI.Providers.OpenAI/NawiriAI.Providers.OpenAI.csproj" />
+    <ProjectReference Include="../../src/NawiriAI.Providers.HuggingFace/NawiriAI.Providers.HuggingFace.csproj" />
+  </ItemGroup>
+</Project>
