@@ -30,7 +30,7 @@ try
 
     var providerId = Environment.GetEnvironmentVariable("NAWIRIAI_PROVIDER")?.Trim().ToLowerInvariant() ?? "none";
     var secretStore = new EnvironmentSecretStore(new Dictionary<string, string> { ["demo-provider-key"] = "NAWIRIAI_API_KEY" });
-    using var http = new HttpClient(new HttpClientHandler { AllowAutoRedirect = false }) { Timeout = Timeout.InfiniteTimeSpan };
+    using var http = new HttpClient(new HttpClientHandler { AllowAutoRedirect = false, UseCookies = false }) { Timeout = Timeout.InfiniteTimeSpan };
     IAIProvider[] providers = [new GeminiProvider(http, secretStore), new OpenAIProvider(http, secretStore), new HuggingFaceProvider(http, secretStore), new OpenAICompatibleProvider(http, secretStore)];
     AIProviderConfiguration? configuration = null;
     if (providerId != "none")

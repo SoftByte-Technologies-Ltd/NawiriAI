@@ -39,6 +39,7 @@ public sealed class BusinessQueryPlanner
         else if (text.Contains("gross") || text.Contains("profit") || text.Contains("margin")) metric = BusinessMetric.GrossMargin;
         else if (text.Contains("health")) metric = BusinessMetric.BusinessHealth;
         else if (text.Contains("brief") || text.Contains("summarize") || text.Contains("management")) metric = BusinessMetric.DailyBrief;
+        else if (text.Contains("daily sales") || text.Contains("sales by day")) metric = BusinessMetric.DailySales;
         else if (text.Contains("trend")) metric = BusinessMetric.SalesTrend;
         else if (text.Contains("sale") || Regex.IsMatch(text, @"\b(sell|sold)\b")) metric = BusinessMetric.SalesSummary;
         else if (Regex.IsMatch(text, @"^\s*compare\s+(this month|this week|today)\s+(with|to|vs\.?)\s+(last month|last week|yesterday)[.?!]?\s*$")) metric = BusinessMetric.SalesSummary;

@@ -10,6 +10,7 @@ public class PlannerTests
     [InlineData("What were sales today?", BusinessMetric.SalesSummary, 12, 12)]
     [InlineData("What were sales yesterday?", BusinessMetric.SalesSummary, 11, 11)]
     [InlineData("What are my top 10 products this week?", BusinessMetric.TopProducts, 7, 12)]
+    [InlineData("Show daily sales this month", BusinessMetric.DailySales, 1, 12)]
     public void ResolvesBusinessCalendar(string question, BusinessMetric metric, int start, int end)
     {
         var query = new BusinessQueryPlanner().Plan(question, new(2026, 9, 12));
