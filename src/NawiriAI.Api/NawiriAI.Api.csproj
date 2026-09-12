@@ -1,0 +1,9 @@
+<Project Sdk="Microsoft.NET.Sdk.Web">
+  <ItemGroup>
+    <ProjectReference Include="../NawiriAI.Core/NawiriAI.Core.csproj" />
+    <ProjectReference Include="../NawiriAI.Connectors/NawiriAI.Connectors.csproj" />
+    <ProjectReference Include="../NawiriAI.Providers.Gemini/NawiriAI.Providers.Gemini.csproj" />
+    <ProjectReference Include="../NawiriAI.Providers.OpenAI/NawiriAI.Providers.OpenAI.csproj" />
+    <ProjectReference Include="../NawiriAI.Providers.HuggingFace/NawiriAI.Providers.HuggingFace.csproj" />
+  </ItemGroup>
+</Project>
