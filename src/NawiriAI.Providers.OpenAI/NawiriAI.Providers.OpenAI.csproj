@@ -1,0 +1,5 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <ItemGroup>
+    <ProjectReference Include="../NawiriAI.Providers.Common/NawiriAI.Providers.Common.csproj" />
+  </ItemGroup>
+</Project>
