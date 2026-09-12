@@ -16,14 +16,7 @@ public sealed class BusinessQueryPlanner
             throw new BusinessQueryException("Only approved read-only business questions are supported.");
         if (Regex.IsMatch(text, @"\b(19\d{2}|20\d{2}|year|quarter|january|february|march|april|may|june|july|august|september|october|november|december|tomorrow|next)\b"))
             throw new BusinessQueryException("Use today, yesterday, this week, this month or last month; use a structured query for explicit dates.");
-        var month = new DateOnly(today.Year, today.Month, 1);
-        var previous = new DateRange(month.AddMonths(-1), month.AddDays(-1));
-        var period = text.Contains("yesterday") ? new DateRange(today.AddDays(-1), today.AddDays(-1))
-            : text.Contains("today") ? new DateRange(today, today)
-            : text.Contains("this week") ? new DateRange(today.AddDays(-(((int)today.DayOfWeek + 6) % 7)), today)
-            : text.Contains("last week") ? new DateRange(today.AddDays(-(((int)today.DayOfWeek + 6) % 7) - 7), today.AddDays(-(((int)today.DayOfWeek + 6) % 7) - 1))
-            : text.Contains("last month") && !text.Contains("compare") ? previous
-            : new DateRange(month, today);
+        var (period, comparisonPeriod) = ResolvePeriods(text, today);
         var limitMatch = Regex.Match(text, @"\btop\s+(\d+)\b");
         var limit = limitMatch.Success && int.TryParse(limitMatch.Groups[1].Value, out var n) ? n : 10;
         if (limitMatch.Success && !int.TryParse(limitMatch.Groups[1].Value, out _))
@@ -50,6 +43,34 @@ public sealed class BusinessQueryPlanner
         else if (text.Contains("trend")) metric = BusinessMetric.SalesTrend;
         else if (text.Contains("sale") || Regex.IsMatch(text, @"\b(sell|sold)\b")) metric = BusinessMetric.SalesSummary;
         else throw new BusinessCapabilityException("This question is not supported. Try sales, top products, or a sales comparison.");
-        return new(metric, period, limit, metric == BusinessMetric.PeriodComparison ? previous : null);
+        return new(metric, period, limit, metric == BusinessMetric.PeriodComparison ? comparisonPeriod : null);
+    }
+
+    private static (DateRange Period, DateRange? Comparison) ResolvePeriods(string text, DateOnly today)
+    {
+        const string supportedPeriods = @"\b(today|yesterday|this week|last week|this month|last month)\b";
+        var named = Regex.Matches(text, supportedPeriods).Select(match => match.Value).Distinct().ToArray();
+        var remaining = Regex.Replace(text, supportedPeriods, "");
+        if (Regex.IsMatch(remaining, @"\b(last|past|previous|days?|weeks?|months?|between|since|until|before|after|excluding|except|only|from)\b|\d{1,2}[-/]\d{1,2}"))
+            throw new BusinessQueryException("That period or filter is not supported. Use an explicit structured query or a supported calendar period.");
+        var month = new DateOnly(today.Year, today.Month, 1);
+        var monday = today.AddDays(-(((int)today.DayOfWeek + 6) % 7));
+        var periods = new Dictionary<string, DateRange>
+        {
+            ["today"] = new(today, today),
+            ["yesterday"] = new(today.AddDays(-1), today.AddDays(-1)),
+            ["this week"] = new(monday, today),
+            ["last week"] = new(monday.AddDays(-7), monday.AddDays(-1)),
+            ["this month"] = new(month, today),
+            ["last month"] = new(month.AddMonths(-1), month.AddDays(-1))
+        };
+        if (text.Contains("compare"))
+        {
+            foreach (var (current, previous) in new[] { ("today", "yesterday"), ("this week", "last week"), ("this month", "last month") })
+                if (named.Length == 2 && named.Contains(current) && named.Contains(previous)) return (periods[current], periods[previous]);
+            throw new BusinessQueryException("Compare today with yesterday, this week with last week, or this month with last month.");
+        }
+        if (named.Length > 1) throw new BusinessQueryException("Specify one period or an explicit comparison.");
+        return (periods[named.Length == 0 ? "this month" : named[0]], null);
     }
 }

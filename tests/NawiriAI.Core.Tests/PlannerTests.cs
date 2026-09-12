@@ -31,4 +31,25 @@ public class PlannerTests
     {
         Assert.Throws<BusinessQueryException>(() => new BusinessQueryPlanner().Plan("Sales in 2020", new(2026, 9, 12)));
     }
+
+    [Theory]
+    [InlineData("Compare sales today with yesterday", 12, 12, 11, 11)]
+    [InlineData("Compare sales this week with last week", 7, 12, 1, 6)]
+    public void ComparesTheRequestedPeriods(string question, int start, int end, int priorStart, int priorEnd)
+    {
+        var query = new BusinessQueryPlanner().Plan(question, new(2026, 9, 12));
+        Assert.Equal(new DateRange(new(2026, 9, start), new(2026, 9, end)), query.Period);
+        // The previous calendar week starts in August for this fixture.
+        var expectedStart = question.Contains("week") ? new DateOnly(2026, 8, 31) : new(2026, 9, priorStart);
+        Assert.Equal(new DateRange(expectedStart, new(2026, 9, priorEnd)), query.ComparisonPeriod);
+    }
+
+    [Theory]
+    [InlineData("Sales in the last 7 days")]
+    [InlineData("Sales in the past 7 days")]
+    [InlineData("Sales today and last month")]
+    [InlineData("Sales excluding refunds this month")]
+    [InlineData("Compare sales")]
+    public void UnsupportedOrAmbiguousDatesAndFiltersAreRejected(string question)
+        => Assert.Throws<BusinessQueryException>(() => new BusinessQueryPlanner().Plan(question, new(2026, 9, 12)));
 }

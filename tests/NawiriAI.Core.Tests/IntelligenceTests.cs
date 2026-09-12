@@ -62,6 +62,27 @@ public class IntelligenceTests
             .QueryAsync(Query, Scope, cancellationToken: cts.Token));
     }
 
+    [Fact]
+    public async Task AuditOutageDoesNotReplaceTrustedAnswer()
+    {
+        var answer = await new IntelligenceService(new TestData(), new ProviderRouter([]), audit: new BrokenAudit())
+            .QueryAsync(Query, Scope);
+        Assert.Equal(1500m, answer.Facts.Measures[0].Value);
+    }
+
+    [Fact]
+    public async Task AuditOutageDoesNotReplaceAccessDenial()
+    {
+        var denied = new BusinessSecurityContext("tenant", ["branch"], "branch", "user", [], "request");
+        await Assert.ThrowsAsync<BusinessAccessException>(() => new IntelligenceService(new TestData(), new ProviderRouter([]), audit: new BrokenAudit())
+            .QueryAsync(Query, denied));
+    }
+
+    private sealed class BrokenAudit : IAIAuditSink
+    {
+        public Task WriteAsync(AIAuditEvent auditEvent, CancellationToken cancellationToken = default) => throw new IOException("Sink unavailable");
+    }
+
     private sealed class TestData : IBusinessDataProvider
     {
         public bool WrongScope { get; init; }

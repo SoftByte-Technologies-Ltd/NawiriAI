@@ -46,6 +46,8 @@ public class FencingTests
     [InlineData("{\"metric\":1,\"period\":{\"start\":\"2026-09-01\",\"end\":\"2026-09-12\"}}")]
     [InlineData("{\"metric\":\"SalesSummary\",\"metric\":\"TopProducts\",\"period\":{\"start\":\"2026-09-01\",\"end\":\"2026-09-12\"}}")]
     [InlineData("{}")]
+    [InlineData("{\"metric\":\"SalesSummary, TopProducts\",\"period\":{\"start\":\"2026-09-01\",\"end\":\"2026-09-12\"}}")]
+    [InlineData("{\"metric\":\"DailyBrief, SalesSummary\",\"period\":{\"start\":\"2026-09-01\",\"end\":\"2026-09-12\"}}")]
     public void StructuredQueryCannotAddSecurityOrUnsafeFields(string json)
         => Assert.Throws<BusinessQueryException>(() => QueryPolicy.ParseJson(json));
 

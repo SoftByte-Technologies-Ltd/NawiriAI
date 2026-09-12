@@ -48,7 +48,9 @@ public sealed class QueryPolicy(IntelligenceLimits? limits = null)
             RejectDuplicateProperties(document.RootElement);
             var options = new JsonSerializerOptions(JsonSerializerDefaults.Web) { UnmappedMemberHandling = JsonUnmappedMemberHandling.Disallow };
             options.Converters.Add(new JsonStringEnumConverter<BusinessMetric>(allowIntegerValues: false));
-            if (!document.RootElement.TryGetProperty("metric", out _) || !document.RootElement.TryGetProperty("period", out _))
+            if (!document.RootElement.TryGetProperty("metric", out var metric) || metric.ValueKind != JsonValueKind.String
+                || !Enum.GetNames<BusinessMetric>().Contains(metric.GetString(), StringComparer.Ordinal)
+                || !document.RootElement.TryGetProperty("period", out _))
                 throw new JsonException();
             return JsonSerializer.Deserialize<BusinessQuery>(json, options) ?? throw new JsonException();
         }

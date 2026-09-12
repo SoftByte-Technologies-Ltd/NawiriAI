@@ -106,8 +106,17 @@ public sealed class IntelligenceService(IBusinessDataProvider dataProvider, IAIP
         if (audit is null) return;
         // A host controls retention/storage. No prompts, credentials, or business figures enter this metadata event.
         using var deadline = new CancellationTokenSource(TimeSpan.FromSeconds(2));
-        await audit.WriteAsync(new(clock.GetUtcNow(), security.CorrelationId, security.Scope, metric,
-            configuration?.ProviderId, configuration?.ModelId, milliseconds, outcome, usage), deadline.Token).WaitAsync(deadline.Token);
+        try
+        {
+            await audit.WriteAsync(new(clock.GetUtcNow(), security.CorrelationId, security.Scope, metric,
+                configuration?.ProviderId, configuration?.ModelId, milliseconds, outcome, usage), deadline.Token).WaitAsync(deadline.Token);
+        }
+        catch (Exception)
+        {
+            // Optional telemetry is best effort. Never replace an authorization denial, cancellation,
+            // or verified answer with a sink failure, and never emit the sink's potentially sensitive error.
+            Trace.TraceWarning("NawiriAI audit metadata could not be delivered.");
+        }
     }
 
     private static string FormatFacts(BusinessDataResult facts, DateRange? comparison)
