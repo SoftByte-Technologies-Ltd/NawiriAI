@@ -50,6 +50,9 @@ public class PlannerTests
     [InlineData("Sales today and last month")]
     [InlineData("Sales excluding refunds this month")]
     [InlineData("Compare sales")]
+    [InlineData("Compare expenses this month with last month")]
+    [InlineData("Compare profit this month with last month")]
+    [InlineData("Compare expenses today with yesterday")]
     public void UnsupportedOrAmbiguousDatesAndFiltersAreRejected(string question)
         => Assert.Throws<BusinessQueryException>(() => new BusinessQueryPlanner().Plan(question, new(2026, 9, 12)));
 }

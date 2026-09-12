@@ -22,8 +22,7 @@ public sealed class BusinessQueryPlanner
         if (limitMatch.Success && !int.TryParse(limitMatch.Groups[1].Value, out _))
             throw new BusinessQueryException("Requested row limit is too large.");
         BusinessMetric metric;
-        if (text.Contains("compare") && (text.Contains("sale") || text.Contains("month"))) metric = BusinessMetric.PeriodComparison;
-        else if (text.Contains("top") && text.Contains("product") || text.Contains("top-selling")) metric = BusinessMetric.TopProducts;
+        if (text.Contains("top") && text.Contains("product") || text.Contains("top-selling")) metric = BusinessMetric.TopProducts;
         else if (text.Contains("slow") || text.Contains("not sold")) metric = BusinessMetric.SlowMovingProducts;
         else if (text.Contains("categor") && (text.Contains("profit") || text.Contains("margin"))) metric = BusinessMetric.CategoryProfitability;
         else if (text.Contains("categor")) metric = BusinessMetric.CategoryPerformance;
@@ -42,7 +41,14 @@ public sealed class BusinessQueryPlanner
         else if (text.Contains("brief") || text.Contains("summarize") || text.Contains("management")) metric = BusinessMetric.DailyBrief;
         else if (text.Contains("trend")) metric = BusinessMetric.SalesTrend;
         else if (text.Contains("sale") || Regex.IsMatch(text, @"\b(sell|sold)\b")) metric = BusinessMetric.SalesSummary;
+        else if (Regex.IsMatch(text, @"^\s*compare\s+(this month|this week|today)\s+(with|to|vs\.?)\s+(last month|last week|yesterday)[.?!]?\s*$")) metric = BusinessMetric.SalesSummary;
         else throw new BusinessCapabilityException("This question is not supported. Try sales, top products, or a sales comparison.");
+        if (comparisonPeriod is not null)
+        {
+            if (metric != BusinessMetric.SalesSummary)
+                throw new BusinessQueryException("Only sales comparisons are supported. Query the other metric for one period at a time.");
+            metric = BusinessMetric.PeriodComparison;
+        }
         return new(metric, period, limit, metric == BusinessMetric.PeriodComparison ? comparisonPeriod : null);
     }
 
